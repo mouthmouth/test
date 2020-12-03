@@ -1,0 +1,227 @@
+<html lang="en">
+
+<head>
+    <title>Sign up</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+</head>
+
+<%- include('partials/header'); -%>
+
+    <body>
+        <form>
+            <div style="text-align: center;">
+                <span id="loginForm" class="headerMenubtnLeft classMenuBtnActive">Login</span>
+                <span id="signupForm" class="headerMenubtnRight">Signup</span>
+            </div>
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="text" name="email" required />
+                <div class="email error"></div>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" required />
+                <div class="password error"></div>
+            </div>
+            <div id="blockMenuPasswordVerify" style="display:none;">
+                <label for="passwordVerify">Confirm password </label>
+                <input id="passwordVerify" type="password" name="passwordVerify" required />
+                <div class="passwordVerify error"></div>
+            </div>
+            <div id="blockMenuName" style="display:none;">
+                <label for="name">Name </label>
+                <input id="name" type="text" name="name" required />
+                <div class="name error"></div>
+            </div>
+            <div id="blockMenuSexe" style="display:none;text-align: center;">
+                <label for="sexe">Sexe </label>
+                <i class="fas fa-male fa-4x"></i>
+                <i class="fas fa-female fa-4x"></i>
+            </div>
+            <div id="blockMenuDate" style="display:none;text-align: center;">
+                <label for="date">Date </label>
+                <input type="date" id="date" name="date" value="2018-07-22" min="1920-01-01" max="2003-12-31">
+            </div>
+
+            <button id="formBtnSubmit">Login</button>
+        </form>
+
+        <%- include('partials/footer'); -%>
+
+            <script>
+                var formURI = '/login';
+
+                const form = document.querySelector('form');
+                const formLogin = document.querySelector('#loginForm');
+                const formSignup = document.querySelector('#signupForm');
+                const formBtnSubmit = document.querySelector('#formBtnSubmit');
+                const formPasswordInput = document.querySelector('#password');
+                const formPasswordVerifyInput = document.querySelector('#passwordVerify');
+                const formPasswordVerifyInputError = document.querySelector('.passwordVerify.error');
+                const emailError = document.querySelector('.email.error');
+                const passwordError = document.querySelector('.password.error');
+                const nameError = document.querySelector('.name.error');
+
+                $("#loginForm").addClass("classMenuBtnActive"); // define background login btn
+
+                function validateEmail(email) {
+                    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    return re.test(String(email).toLowerCase());
+                }
+
+                $('#email').on('input', function() {
+                    if (validateEmail(this.value) == true) {
+                        emailError.textContent = '';
+                        $('#email').removeClass("errBorder")
+                    } else {
+                        emailError.textContent = 'Email is not correct';
+                        $('#email').addClass("errBorder");
+                    }
+
+                });
+
+                $('#passwordVerify').on('input', function() {
+                    if (formPasswordInput.value != formPasswordVerifyInput.value) {
+                        formPasswordVerifyInputError.textContent = 'Passwords are not matching';
+                        $('#passwordVerify').addClass("errBorder");
+                        $('#password').addClass("errBorder");
+                    } else {
+                        formPasswordVerifyInputError.textContent = '';
+                        $('#passwordVerify').removeClass("errBorder")
+                        $('#password').removeClass("errBorder")
+                    }
+                });
+
+                $('#password').on('input', function() {
+                    if (formPasswordInput.value != formPasswordVerifyInput.value) {
+                        formPasswordVerifyInputError.textContent = 'Passwords are not matching';
+                        $('#passwordVerify').addClass("errBorder");
+                        $('#password').addClass("errBorder");
+                    } else {
+                        formPasswordVerifyInputError.textContent = '';
+                        $('#passwordVerify').removeClass("errBorder")
+                        $('#password').removeClass("errBorder")
+                    }
+                });
+
+                formLogin.addEventListener('click', (event) => {
+                    formURI = "/login"
+                    formBtnSubmit.textContent = 'Login';
+                    console.log(formURI)
+                    $("#loginForm").addClass("classMenuBtnActive");
+                    $("#signupForm").removeClass("classMenuBtnActive");
+                    emailError.textContent = '';
+                    passwordError.textContent = '';
+                    $("#blockMenuName").hide("slow", function() {});
+                    $("#blockMenuSexe").hide("slow", function() {});
+                    $("#blockMenuDate").hide("slow", function() {});
+                    $("#blockMenuPasswordVerify").hide("slow", function() {});
+                });
+
+                formSignup.addEventListener('click', (event) => {
+                    formURI = "/signup"
+                    formBtnSubmit.textContent = 'Signup';
+                    console.log(formURI)
+                    $("#signupForm").addClass("classMenuBtnActive");
+                    $("#loginForm").removeClass("classMenuBtnActive");
+                    emailError.textContent = '';
+                    passwordError.textContent = '';
+                    $("#blockMenuName").show("slow", function() {});
+                    $("#blockMenuSexe").show("slow", function() {});
+                    $("#blockMenuDate").show("slow", function() {});
+                    $("#blockMenuPasswordVerify").show("slow", function() {});
+                });
+
+                form.addEventListener('submit', async(e) => {
+                    e.preventDefault();
+
+                    //reset errors
+                    emailError.textContent = '';
+                    passwordError.textContent = '';
+
+                    // get the values
+
+                    const email = form.email.value;
+                    const password = form.password.value;
+                    const name = form.name.value;
+                    const birthDate = form.date.value;
+
+                    if (formURI == "/signup" && formPasswordInput.value === formPasswordVerifyInput.value) {
+
+
+                        try {
+                            const res = await fetch('/signup', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    email: email,
+                                    password: password,
+                                    name: name,
+                                    birthDate: birthDate
+                                }),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await res.json();
+                            console.log(data);
+                            if (data.errors) {
+                                emailError.textContent = data.errors.email;
+                                passwordError.textContent = data.errors.password;
+                                nameError.textContent = data.errors.name;
+                            }
+                            if (data.user) {
+                                location.assign('/home')
+                            }
+                        } catch (err) {
+                            console.log(err);
+                        }
+
+
+                    } else if (formURI == "/login") {
+
+
+                        try {
+                            const res = await fetch('/login', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    email: email,
+                                    password: password
+                                }),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await res.json();
+                            console.log(data);
+                            if (data.errors) {
+                                emailError.textContent = data.errors.email;
+                                passwordError.textContent = data.errors.password;
+                            }
+                            if (data.user) {
+                                location.assign('/home')
+                            }
+                        } catch (err) {
+                            console.log(err);
+
+
+                        }
+                    } else {
+                        $('#passwordVerify').addClass("errBorder");
+                        $('#password').addClass("errBorder");
+                    }
+
+
+
+
+                })
+            </script>
+
+    </body>
+
+</html>
